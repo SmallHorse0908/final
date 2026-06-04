@@ -1,0 +1,131 @@
+{% extends "quiz/base.html" %}
+{% load static %}
+{% block title %}題庫管理{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div style="padding:12px 0 24px;">
+    <div class="hero-prompt">$ python manage.py runserver  ─  /admin/</div>
+    <h1 class="hero-title" style="font-size:38px;">題庫管理</h1>
+    <p class="hero-sub">管理者可在此新增 / 修改 / 刪除題目。新增的題目會自動加入測驗題庫。</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">題庫總數</div>
+      <div class="stat-value" id="stat-total">{{ total_count }}<span class="unit">題</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">課程題庫</div>
+      <div class="stat-value">{{ course_count }}<span class="unit">題</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">自訂新增</div>
+      <div class="stat-value" id="stat-user">{{ user_count }}<span class="unit">題</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">章節</div>
+      <div class="stat-value mono" style="font-size:22px;">ch.06</div>
+    </div>
+  </div>
+
+  <div class="section-head" style="margin-top:40px;margin-bottom:16px;">
+    <h3 class="section-title">Question_set / 題目列表</h3>
+    <div class="admin-toolbar" style="margin:0;">
+      <input class="input admin-search" id="admin-search" placeholder="搜尋題目..."/>
+      <a class="btn btn-ghost btn-sm" href="/admin/" target="_blank" rel="noopener">⚙ Django 後台</a>
+      <button class="btn btn-primary btn-sm" id="btn-add">+ 新增題目</button>
+    </div>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th style="width:50%;">題幹</th>
+        <th>選項</th>
+        <th>正解</th>
+        <th>來源</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="q-tbody"></tbody>
+  </table>
+
+  <div id="no-results" style="display:none;padding:32px;text-align:center;color:var(--text-dim);font-family:var(--font-mono);font-size:13px;">
+    沒有符合條件的題目
+  </div>
+
+  <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <div class="notice">// 提示：課程題庫題目僅可檢視，自訂題目可編輯 / 刪除。</div>
+    <button class="btn btn-ghost btn-sm" id="btn-clear" style="color:var(--red);display:none;">✕ 清空自訂題庫</button>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-backdrop" id="modal-backdrop" style="display:none;">
+  <div class="modal" style="max-width:640px;max-height:90vh;overflow-y:auto;">
+    <div class="panel-header" style="position:sticky;top:0;z-index:2;background:var(--bg-elev);">
+      <span class="mono" id="modal-title">new_question / 新增題目</span>
+      <span class="dim mono" style="cursor:pointer;" id="btn-modal-close">✕</span>
+    </div>
+    <div style="padding:24px;display:flex;flex-direction:column;gap:18px;">
+
+      <div>
+        <div class="mono dim" style="font-size:11px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">題幹 *</div>
+        <textarea class="input" id="f-stem" rows="3"
+          placeholder="例如：下列何者是「後進先出」(LIFO) 的資料結構？"
+          style="font-family:var(--font-sans);resize:vertical;"></textarea>
+      </div>
+
+      <div>
+        <div class="mono dim" style="font-size:11px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">附加程式碼 / 算式 (選填)</div>
+        <textarea class="input" id="f-block" rows="2"
+          placeholder="例如：Push(1)、Push(2)、Pop()、Push(3)"
+          style="font-family:var(--font-mono);resize:vertical;"></textarea>
+      </div>
+
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;">
+            選項 *　<span style="text-transform:none;letter-spacing:0;">(右側勾選正解)</span>
+          </span>
+          <button class="btn btn-sm btn-ghost" id="btn-add-opt">+ 加選項</button>
+        </div>
+        <div id="opts-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <div>
+        <div class="mono dim" style="font-size:11px;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.08em;">解析 / 提示 (選填)</div>
+        <textarea class="input" id="f-hint" rows="2"
+          placeholder="作答後顯示的解釋，幫助使用者理解正解的原因"
+          style="font-family:var(--font-sans);resize:vertical;"></textarea>
+      </div>
+
+      <div id="modal-err" style="display:none;padding:10px 14px;border:1px solid var(--red-border);background:var(--red-bg);color:var(--red);border-radius:var(--radius);font-family:var(--font-mono);font-size:12px;"></div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:4px;">
+        <div>
+          <button class="btn btn-ghost btn-sm" id="btn-del-q" style="color:var(--red);border-color:var(--red-border);display:none;">🗑 刪除此題</button>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-ghost" id="btn-cancel">取消</button>
+          <button class="btn btn-primary" id="btn-save">儲存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.ADMIN_DATA    = {{ questions_json|safe }};
+window.ADMIN_API_URL = "{% url 'quiz:admin_panel' %}";
+window.CSRF_TOKEN    = "{{ csrf_token }}";
+</script>
+<script src="{% static 'quiz/js/admin.js' %}"></script>
+{% endblock %}

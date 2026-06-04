@@ -1,0 +1,72 @@
+{% extends "quiz/base.html" %}
+{% load static %}
+{% block title %}作答 — 第 {{ chapter.number }} 章{% endblock %}
+{% block nav_chapters %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Top bar -->
+  <div class="quiz-top">
+    <div>
+      <span class="dim">ch.{{ chapter.number|stringformat:"02d" }}</span>
+      <span class="dim"> / </span>
+      <span>{{ chapter.title }}</span>
+      {% if spaced_rep == "1" %}
+        <span class="tag tag-amber" style="margin-left:10px;font-size:11px;">間隔學習</span>
+      {% endif %}
+    </div>
+    <div style="display:flex;gap:24px;align-items:center;">
+      <span>
+        <span class="dim">已掌握 </span>
+        <span id="q-mastered" class="green" style="font-weight:600;">0</span>
+        <span class="dim" id="q-total"> / {{ question_count }}</span>
+        {% if spaced_rep == "1" %}
+        <span id="q-pending" class="amber mono" style="font-size:12px;margin-left:8px;display:none;"></span>
+        {% endif %}
+      </span>
+      <span>
+        <span class="dim">⏱ </span>
+        <span id="timer-display" style="font-weight:600;">--:--</span>
+      </span>
+      <button class="btn btn-sm btn-ghost" id="btn-submit-confirm">交卷</button>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progress-fill" style="width:0%;"></div>
+  </div>
+
+  <!-- Nav dots (populated by JS) -->
+  <div class="qnav" id="qnav"></div>
+
+  <!-- Quiz form -->
+  <form id="quiz-form" method="POST" action="{% url 'quiz:start_quiz' chapter.id %}">
+    {% csrf_token %}
+    <input type="hidden" name="start_time" value="{{ start_timestamp }}">
+    <input type="hidden" name="spaced_rep" value="{{ spaced_rep }}">
+    <input type="hidden" name="is_review"  value="{{ is_review }}">
+    <input type="hidden" id="time-limit-value" value="{{ time_limit }}">
+
+    <!-- JS renders question here -->
+    <div id="quiz-root"></div>
+
+    <!-- Navigation buttons (outside the question — one set only) -->
+    <div class="quiz-actions">
+      <button type="button" class="btn" id="btn-prev" disabled>← 上一題</button>
+      <span class="dim mono" id="quiz-status" style="font-size:12px;">請選擇答案</span>
+      <button type="button" class="btn btn-primary" id="btn-next" disabled>下一題 →</button>
+    </div>
+  </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.QUIZ_DATA       = {{ questions_json|safe }};
+window.QUIZ_SPACED_REP = "{{ spaced_rep }}" === "1";
+</script>
+<script src="{% static 'quiz/js/quiz.js' %}"></script>
+{% endblock %}

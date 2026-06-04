@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{% block title %}資料結構測驗{% endblock %} — DS Quiz</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'quiz/css/style.css' %}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+<div class="app">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header class="header">
+    <div class="header-inner">
+      <a class="brand" href="{% url 'quiz:index' %}">
+        <span class="brand-dot"></span>
+        <span class="brand-name">資料結構</span>
+        <span class="brand-slash">/</span>
+        <span class="brand-path">Final&nbsp;project</span>
+      </a>
+
+      <nav class="nav">
+        <a class="nav-link {% block nav_home %}{% endblock %}"        href="{% url 'quiz:index' %}">~/home</a>
+        <a class="nav-link {% block nav_chapters %}{% endblock %}"    href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">chapters</a>
+        <a class="nav-link {% block nav_leaderboard %}{% endblock %}" href="{% url 'quiz:leaderboard' %}">leaderboard</a>
+        <a class="nav-link {% block nav_history %}{% endblock %}"     href="{% url 'quiz:history' %}">history</a>
+        <a class="nav-link {% block nav_review %}{% endblock %}"      href="{% url 'quiz:review' %}">review</a>
+        <a class="nav-link {% block nav_admin %}{% endblock %}" href="{% url 'quiz:admin_panel' %}">admin</a>
+      </nav>
+
+      <div class="header-meta">
+        {% if user_name %}
+          <a href="{% url 'quiz:set_name' %}" class="cyan mono" style="font-size:12px;text-decoration:none;" title="點擊切換名稱">{{ user_name }} ✎</a>
+        {% else %}
+          <a href="{% url 'quiz:set_name' %}" class="btn btn-sm btn-ghost" style="font-size:11px">設定名稱</a>
+        {% endif %}
+        <span>● 已連線</span>
+        <span class="dim">v1.0.0</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────────────── -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer style="border-top:1px solid var(--border);padding:20px 32px;background:var(--bg-elev);">
+    <div class="container" style="display:flex;justify-content:space-between;align-items:center;padding:0;flex-wrap:wrap;gap:12px;">
+      <div class="mono dim" style="font-size:12px">
+        資料結構期末專題 · 資管二甲 · CBF113015 / CBF113017 / CBF113020
+      </div>
+      <div class="mono dim" style="font-size:12px">Django · Python 3 · MTV Architecture</div>
+    </div>
+  </footer>
+
+</div><!-- /.app -->
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

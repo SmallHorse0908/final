@@ -1,0 +1,220 @@
+/* 題庫資料 — chapters list + questions for chapter 6 */
+
+window.CHAPTERS = [
+  { id: 6, title: "堆疊與佇列", desc: "linear/stack_queue", count: 15, available: true },
+];
+
+/* 第 6 章 題庫 — 14 題自題庫 + 1 題自行設計 */
+window.QUESTIONS_CH6 = [
+  {
+    id: "6-1",
+    stem: "下列何者是「後進先出」(LIFO) 的資料結構？",
+    options: [
+      { key: "A", text: "陣列" },
+      { key: "B", text: "堆疊" },
+      { key: "C", text: "佇列" },
+      { key: "D", text: "堆積" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "B",
+    hint: "LIFO = Last In First Out，最後放入的最先取出，符合堆疊 (Stack) 的特性。",
+  },
+  {
+    id: "6-2",
+    stem: "下列何者是「先進先出」(FIFO) 的資料結構？",
+    options: [
+      { key: "A", text: "陣列" },
+      { key: "B", text: "堆疊" },
+      { key: "C", text: "佇列" },
+      { key: "D", text: "堆積" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "C",
+    hint: "FIFO = First In First Out，最先放入的最先取出，符合佇列 (Queue) 的特性。",
+  },
+  {
+    id: "6-3",
+    stem: "假設有一個空的「堆疊」，經過下列操作後，堆疊中的元素 (由底至頂) 為何？",
+    block: "Push(1)、Push(2)、Pop()、Push(3)、Push(4)",
+    options: [
+      { key: "A", text: "1, 2, 3" },
+      { key: "B", text: "1, 2, 4" },
+      { key: "C", text: "1, 3, 4" },
+      { key: "D", text: "2, 3, 4" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "C",
+    hint: "Push 1 → [1]，Push 2 → [1,2]，Pop → [1]，Push 3 → [1,3]，Push 4 → [1,3,4]。",
+  },
+  {
+    id: "6-4",
+    stem: "假設有一個空的「佇列」，經過下列操作後，佇列中的元素 (由 front 至 rear) 為何？",
+    block: "Enqueue(1)、Enqueue(2)、Dequeue()、Enqueue(3)、Enqueue(4)",
+    options: [
+      { key: "A", text: "1, 2, 3" },
+      { key: "B", text: "1, 2, 4" },
+      { key: "C", text: "1, 3, 4" },
+      { key: "D", text: "2, 3, 4" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "D",
+    hint: "Enqueue 後 [1,2]，Dequeue 取出 front (1) 剩 [2]，再 Enqueue 3、4 → [2,3,4]。",
+  },
+  {
+    id: "6-5",
+    stem: "下列哪個操作可以從「堆疊」刪除一筆資料？",
+    options: [
+      { key: "A", text: "Push" },
+      { key: "B", text: "Pop" },
+      { key: "C", text: "Enqueue" },
+      { key: "D", text: "Dequeue" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "B",
+    hint: "堆疊用 Push 放入、Pop 取出。Enqueue / Dequeue 是佇列專用。",
+  },
+  {
+    id: "6-6",
+    stem: "下列哪個操作可以從「佇列」刪除一筆資料？",
+    options: [
+      { key: "A", text: "Push" },
+      { key: "B", text: "Pop" },
+      { key: "C", text: "Enqueue" },
+      { key: "D", text: "Dequeue" },
+    ],
+    answer: "D",
+    hint: "佇列用 Enqueue 從 rear 放入、Dequeue 從 front 取出。",
+  },
+  {
+    id: "6-7",
+    stem: "若想在「堆疊」中找到最小值，則時間複雜度為何？",
+    options: [
+      { key: "A", text: "O(1)" },
+      { key: "B", text: "O(log n)" },
+      { key: "C", text: "O(n)" },
+      { key: "D", text: "O(n²)" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "C",
+    hint: "堆疊只能從頂端存取，要找最小值必須走訪每個元素，故為 O(n)。",
+  },
+  {
+    id: "6-8",
+    stem: "若想在「佇列」中找到最小值，則時間複雜度為何？",
+    options: [
+      { key: "A", text: "O(1)" },
+      { key: "B", text: "O(log n)" },
+      { key: "C", text: "O(n)" },
+      { key: "D", text: "O(n²)" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "C",
+    hint: "佇列同樣只能從兩端操作，找最小值需走訪全部 n 個元素，為 O(n)。",
+  },
+  {
+    id: "6-9",
+    stem: "若環狀佇列的長度為 n，下列何者可以用來判斷環狀佇列已填滿？",
+    options: [
+      { key: "A", text: "front == rear" },
+      { key: "B", text: "rear == n - 1" },
+      { key: "C", text: "(rear + 1) % n == front" },
+      { key: "D", text: "rear == front + 1" },
+    ],
+    answer: "C",
+    hint: "環狀佇列一般保留一格判斷滿/空，rear 的下一格若等於 front，代表已填滿。",
+  },
+  {
+    id: "6-10",
+    stem: "下列資料結構中，何者的加入與刪除可以在兩端進行？",
+    options: [
+      { key: "A", text: "佇列 (Queue)" },
+      { key: "B", text: "優先佇列 (Priority Queue)" },
+      { key: "C", text: "雙向佇列 (Deque)" },
+      { key: "D", text: "以上皆可" },
+    ],
+    answer: "C",
+    hint: "Deque (Double-ended Queue) 兩端皆可進行 insert / delete 操作。",
+  },
+  {
+    id: "6-11",
+    stem: "下列資料結構中，何者適合用來解「迷宮問題」？",
+    options: [
+      { key: "A", text: "鏈結串列" },
+      { key: "B", text: "堆疊" },
+      { key: "C", text: "佇列" },
+      { key: "D", text: "堆積" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "B",
+    hint: "迷宮走法常用 DFS (深度優先)，DFS 以堆疊回溯路徑；若用 BFS 找最短路徑則改用佇列。",
+  },
+  {
+    id: "6-12",
+    stem: "下列資料結構中，何者適合用來進行「中序表示式轉後序表示式」？",
+    options: [
+      { key: "A", text: "鏈結串列" },
+      { key: "B", text: "堆疊" },
+      { key: "C", text: "佇列" },
+      { key: "D", text: "堆積" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "B",
+    hint: "Shunting-yard 演算法使用堆疊暫存運算子，依優先權彈出。",
+  },
+  {
+    id: "6-13",
+    stem: "已知某運算式的「後序表示式」，下列何種資料結構適合用來計算運算式的結果？",
+    options: [
+      { key: "A", text: "鏈結串列" },
+      { key: "B", text: "堆疊" },
+      { key: "C", text: "佇列" },
+      { key: "D", text: "堆積" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "B",
+    hint: "後序式求值：遇到數字推入堆疊，遇到運算子彈出兩個數計算後再推回去。",
+  },
+  {
+    id: "6-14",
+    stem: "已知 A=1、B=2、C=3、D=4，且運算式的後序式表示法如下，計算結果為何？",
+    block: "A B + C D + *",
+    options: [
+      { key: "A", text: "11" },
+      { key: "B", text: "15" },
+      { key: "C", text: "21" },
+      { key: "D", text: "24" },
+      { key: "E", text: "以上皆非" },
+    ],
+    answer: "C",
+    hint: "(A+B) × (C+D) = (1+2) × (3+4) = 3 × 7 = 21。",
+  },
+  /* === 本組自行設計題 === */
+  {
+    id: "6-15",
+    stem: "下列何者「不是」堆疊 (Stack) 的典型應用？",
+    options: [
+      { key: "A", text: "函式呼叫的返回位址管理" },
+      { key: "B", text: "瀏覽器的上一頁 / 下一頁紀錄" },
+      { key: "C", text: "作業系統的程序排程 (CPU Scheduling)" },
+      { key: "D", text: "編譯器檢查括號是否成對" },
+      { key: "E", text: "以上皆是堆疊的應用" },
+    ],
+    answer: "C",
+    hint: "作業系統的程序排程通常用佇列 (FIFO) 或優先佇列實作，其他三項都是經典堆疊應用。",
+    custom: true,
+  },
+];
+
+/* 模擬已存在的排行榜資料 */
+window.SEED_LEADERBOARD = [
+  { name: "馬睿廷",   score: 100, time: 184, date: "2026/05/12" },
+  { name: "Niklaus_W", score: 93,  time: 221, date: "2026/05/11" },
+  { name: "黃立宇",   score: 93,  time: 245, date: "2026/05/12" },
+  { name: "魚量漢",   score: 86,  time: 198, date: "2026/05/13" },
+  { name: "stack_ovf", score: 80,  time: 312, date: "2026/05/09" },
+  { name: "queue_lover", score: 80, time: 334, date: "2026/05/10" },
+  { name: "Alan_T",   score: 73,  time: 267, date: "2026/05/08" },
+  { name: "anon_113", score: 66,  time: 401, date: "2026/05/07" },
+  { name: "binary_owl", score: 60, time: 289, date: "2026/05/06" },
+  { name: "node_zero", score: 53,  time: 512, date: "2026/05/05" },
+];

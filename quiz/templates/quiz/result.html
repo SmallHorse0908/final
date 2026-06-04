@@ -1,0 +1,114 @@
+{% extends "quiz/base.html" %}
+{% block title %}結果 — {{ result.score }} 分{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="mono" style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">
+    <a href="{% url 'quiz:index' %}">~/home</a>
+    <span> / quiz / </span>
+    <span class="cyan">result</span>
+  </div>
+
+  <!-- Score hero -->
+  <div class="result-hero">
+    <div>
+      <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">SCORE</div>
+      <div class="score-big">
+        {{ result.score }}<span class="denom">/100</span>
+      </div>
+      <div class="mono" style="margin-top:8px;font-weight:600;" id="grade-label">
+        ● {{ result.grade_label }}
+      </div>
+      {% if result.spaced_rep %}
+      <div class="sr-badge">↻ 間隔學習模式</div>
+      {% endif %}
+    </div>
+    <div>
+      <div style="font-size:13px;color:var(--text-muted);font-family:var(--font-mono);margin-bottom:18px;">
+        第 {{ result.chapter_number }} 章　{{ result.chapter_title }}　·　{{ result.date }}
+      </div>
+      <div class="result-stats">
+        <div>
+          <div class="result-stat-label">答對</div>
+          <div class="result-stat-value green">{{ result.correct_count }}<span class="dim" style="font-size:14px;"> 題</span></div>
+        </div>
+        <div>
+          <div class="result-stat-label">答錯</div>
+          <div class="result-stat-value red">{{ result.wrong_count }}<span class="dim" style="font-size:14px;"> 題</span></div>
+        </div>
+        <div>
+          <div class="result-stat-label">用時</div>
+          <div class="result-stat-value">{{ result.duration_fmt }}</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap;">
+        <a class="btn btn-primary"  href="{% url 'quiz:start_quiz' result.chapter_id %}">↻ 再來一次</a>
+        <a class="btn"              href="{% url 'quiz:review' %}">錯題複習</a>
+        <a class="btn btn-ghost"    href="{% url 'quiz:leaderboard' %}">查看排行榜</a>
+        <a class="btn btn-ghost"    href="{% url 'quiz:index' %}">回首頁</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Per-question review -->
+  <div class="section-head">
+    <h3 class="section-title">detail / 每題對照</h3>
+    <span class="section-meta">
+      共 {{ result.total }} 題 ·
+      {% if result.spaced_rep %}首次答對率{% else %}正確率{% endif %}
+      {{ result.accuracy }}%
+    </span>
+  </div>
+
+  <div class="review-list">
+    {% for d in result.details %}
+    <div class="review-row">
+      <div class="review-marker {% if d.is_correct %}ok{% else %}err{% endif %}">
+        {% if d.is_correct %}✓{% else %}✗{% endif %}
+      </div>
+      <div>
+        <div class="review-q">
+          <span class="mono dim" style="margin-right:8px;">Q{{ forloop.counter|stringformat:"02d" }}.</span>
+          {{ d.stem }}
+          {% if d.block %}
+          <code style="display:block;margin-top:6px;padding:8px 12px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:12px;color:var(--cyan);">{{ d.block }}</code>
+          {% endif %}
+        </div>
+        <div class="review-answers">
+          <span>你的答案：</span>
+          <span class="{% if d.is_correct %}you-correct{% else %}you-wrong{% endif %}">
+            {{ d.user_choice_text|default:"未作答" }}
+          </span>
+          {% if not d.is_correct %}
+            <span>　|　正解：</span>
+            <span class="correct">{{ d.correct_choice_text }}</span>
+          {% endif %}
+          {% if d.hint %}
+          <br>
+          <span style="color:var(--text-faint);"># </span>
+          <span style="color:var(--text-dim);">{{ d.hint }}</span>
+          {% endif %}
+        </div>
+      </div>
+      {% if d.is_correct %}
+        <span class="tag tag-green">首次答對</span>
+      {% elif d.eventually_correct %}
+        <span class="tag tag-amber">重做答對</span>
+      {% else %}
+        <span class="tag tag-red">未答對</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// apply grade color
+document.getElementById('grade-label').style.color = '{{ result.grade_color }}';
+</script>
+{% endblock %}

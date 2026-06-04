@@ -1,0 +1,78 @@
+{% extends "quiz/base.html" %}
+{% block title %}登入 — 資料結構測驗{% endblock %}
+
+{% block content %}
+<div class="container" style="display:flex;align-items:center;justify-content:center;min-height:70vh;">
+  <div style="width:100%;max-width:460px;">
+
+    <!-- Welcome heading -->
+    <div style="text-align:center;margin-bottom:40px;">
+      <div class="mono dim" style="font-size:12px;margin-bottom:12px;letter-spacing:0.08em;">
+        $ 資料結構 Final project --login
+      </div>
+      <h1 style="font-size:32px;font-weight:700;margin:0 0 10px;letter-spacing:-0.02em;">
+        {% if user_name %}切換名稱{% else %}歡迎使用{% endif %}<span class="cursor"></span>
+      </h1>
+      <p style="color:var(--text-muted);font-size:14px;margin:0;">
+        {% if user_name %}目前登入為 <span class="cyan">{{ user_name }}</span>，輸入新名稱後送出即可切換。{% else %}輸入你的名稱即可開始作答，名稱將顯示於排行榜與歷史成績。{% endif %}
+      </p>
+    </div>
+
+    <!-- Login card -->
+    <div class="panel">
+      <div class="panel-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="win-dots">
+            <span class="win-dot"></span>
+            <span class="win-dot"></span>
+            <span class="win-dot"></span>
+          </span>
+          <span>player_login.py</span>
+        </div>
+        <span class="tag tag-green">● ONLINE</span>
+      </div>
+      <div class="panel-body" style="padding:32px;">
+        <form method="POST" action="{% url 'quiz:set_name' %}">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next }}">
+
+          <div style="margin-bottom:24px;">
+            <label class="mono" style="font-size:11px;color:var(--text-dim);display:block;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.1em;">
+              &gt; player_name
+            </label>
+            <input
+              class="input"
+              type="text"
+              name="name"
+              placeholder="輸入你的名稱..."
+              value="{{ user_name }}"
+              maxlength="20"
+              autofocus
+              required
+              style="font-size:16px;padding:12px 16px;"
+            >
+            <div class="mono" style="font-size:11px;color:var(--text-faint);margin-top:8px;">
+              最多 20 個字元，不需要密碼
+            </div>
+          </div>
+
+          <button class="btn btn-primary" type="submit" style="width:100%;padding:14px;font-size:15px;">
+            進入測驗系統 →
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div style="margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center;">
+      {% for item in info_items %}
+      <div style="padding:14px;background:var(--bg-elev);border:1px solid var(--border);border-radius:var(--radius-lg);">
+        <div class="mono" style="font-size:18px;margin-bottom:4px;">{{ item.icon }}</div>
+        <div style="font-size:12px;color:var(--text-muted);">{{ item.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

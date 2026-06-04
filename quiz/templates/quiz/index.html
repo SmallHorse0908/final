@@ -1,0 +1,94 @@
+{% extends "quiz/base.html" %}
+{% block title %}首頁{% endblock %}
+{% block nav_home %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1 class="hero-title">
+      資料結構<br/>主題測驗系統
+    </h1>
+    <p class="hero-sub">
+      以課堂題庫為基礎的線上測驗平台。
+    </p>
+    <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;">
+      <a class="btn btn-primary btn-lg" href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">▸ 立刻開始測驗</a>
+      <a class="btn btn-lg"             href="{% url 'quiz:leaderboard' %}">查看排行榜</a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">題目數</div>
+      <div class="stat-value">{{ total_questions }}<span class="unit">題</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">預估時長</div>
+      <div class="stat-value">15<span class="unit">分鐘</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">歷史嘗試</div>
+      <div class="stat-value">{{ history_count }}<span class="unit">次</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">個人最佳</div>
+      <div class="stat-value">{{ best_score }}<span class="unit">分</span></div>
+    </div>
+  </div>
+
+  <!-- Chapter list -->
+  <div class="section-head">
+    <h3 class="section-title">chapter / 本期測驗章節</h3>
+    <span class="section-meta">linear/stack_queue</span>
+  </div>
+
+  <div class="chapter-grid">
+    {% for ch in chapters %}
+    <a class="chapter-row" href="{% url 'quiz:chapter_detail' ch.id %}">
+      <span class="chapter-num">ch.{{ ch.number|stringformat:"02d" }}</span>
+      <div>
+        <div class="chapter-name">第 {{ ch.number }} 章　{{ ch.title }}</div>
+        <div class="chapter-desc">linear/stack_queue</div>
+      </div>
+      <span class="chapter-meta">
+        {{ ch.question_count }} 題&nbsp;&nbsp;<span class="tag tag-green">已開放</span>
+      </span>
+      <span class="chapter-arrow">→</span>
+    </a>
+    {% empty %}
+    <div style="padding:32px;text-align:center;color:var(--text-dim);font-family:var(--font-mono);font-size:13px;">
+      尚無題庫。請執行：python manage.py setup_quiz
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Features -->
+  <div class="section-head">
+    <h3 class="section-title">features / 系統功能</h3>
+    <span class="section-meta">MTV架構 · Django</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--bg-elev);">
+    {% for f in feature_list %}
+    <div style="padding:20px 22px;{% if not forloop.counter|divisibleby:4 %}border-right:1px solid var(--border);{% endif %}{% if forloop.counter <= 4 %}border-bottom:1px solid var(--border);{% endif %}">
+      <div class="mono" style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">{{ f.key }}</div>
+      <div style="font-weight:500;margin-bottom:4px;">{{ f.title }}</div>
+      <div class="mono" style="font-size:12px;color:var(--text-dim);line-height:1.5;">{{ f.desc }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// inject features list
+document.addEventListener('DOMContentLoaded', function() {
+  // features are rendered server-side; this block is intentionally empty
+});
+</script>
+{% endblock %}

@@ -1,0 +1,180 @@
+{% extends "quiz/base.html" %}
+{% block title %}第 {{ chapter.number }} 章 {{ chapter.title }}{% endblock %}
+{% block nav_chapters %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <!-- Breadcrumb -->
+  <div class="mono" style="color:var(--text-dim);font-size:13px;margin-bottom:24px;">
+    <a href="{% url 'quiz:index' %}" style="cursor:pointer;">~/home</a>
+    <span> / </span>
+    <span class="cyan">ch.{{ chapter.number|stringformat:"02d" }}</span>
+  </div>
+
+  <!-- Terminal panel -->
+  <div class="panel">
+    <div class="panel-header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="win-dots">
+          <span class="win-dot"></span>
+          <span class="win-dot"></span>
+          <span class="win-dot"></span>
+        </span>
+        <span>chapter_{{ chapter.number|stringformat:"02d" }} / linear/stack_queue.py</span>
+      </div>
+      <span class="tag tag-green">READY</span>
+    </div>
+    <div class="panel-body">
+      <div style="display:grid;grid-template-columns:1fr auto;gap:32px;align-items:start;">
+        <div>
+          <div class="mono dim" style="font-size:12px;margin-bottom:8px;"># chapter title</div>
+          <h1 style="font-size:44px;margin:0 0 16px;letter-spacing:-0.02em;line-height:1.1;">
+            第 {{ chapter.number }} 章　{{ chapter.title }}
+          </h1>
+          <p style="color:var(--text-muted);max-width:560px;margin-bottom:8px;font-size:15px;">
+            本章涵蓋線性資料結構中的「堆疊」(LIFO) 與「佇列」(FIFO)，包含基本操作、時間複雜度、
+            環狀佇列、雙向佇列，以及它們在迷宮搜尋、運算式轉換等實際應用。
+          </p>
+
+          <!-- Settings panel -->
+          <div class="settings-panel">
+            <div class="mono" style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px;"># 測驗設定</div>
+
+            <!-- Question count -->
+            <div class="settings-row">
+              <span class="settings-label">題數</span>
+              <div class="seg" id="seg-count">
+                <button data-count="5"  onclick="setCount(5)">5 題</button>
+                <button data-count="10" onclick="setCount(10)">10 題</button>
+                <button data-count="15" onclick="setCount(15)" class="active">15 題</button>
+                <button data-count="{{ chapter.question_count }}" id="btn-all"
+                        onclick="setCount({{ chapter.question_count }})">全部 ({{ chapter.question_count }})</button>
+              </div>
+              <span class="settings-help" id="time-hint">約 15 分鐘</span>
+            </div>
+
+            <!-- Spaced repetition -->
+            <div class="settings-row">
+              <span class="settings-label">間隔學習法</span>
+              <div class="toggle on" id="toggle-sr" onclick="toggleSr()" role="switch" aria-checked="true">
+                <span class="toggle-track"></span>
+                <span class="toggle-label" id="sr-label">已啟用</span>
+              </div>
+              <span class="settings-help">答錯的題目會在後面再次出現，直到答對為止</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- History sidebar -->
+        <div style="width:220px;">
+          <div class="mono" style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;">歷史紀錄</div>
+          {% if not user_name %}
+            <div class="notice">
+              <a href="{% url 'quiz:set_name' %}?next={% url 'quiz:chapter_detail' chapter.id %}" style="color:var(--cyan);">設定名稱</a>
+              後可查看個人紀錄
+            </div>
+          {% elif history_count == 0 %}
+            <div class="notice">尚未作答過此章節</div>
+          {% else %}
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div class="mono dim" style="font-size:11px;">最佳分數</div>
+                <div class="mono" style="font-size:28px;font-weight:600;">{{ best }}<span class="dim" style="font-size:14px;"> / 100</span></div>
+              </div>
+              <div>
+                <div class="mono dim" style="font-size:11px;">上次作答</div>
+                <div class="mono" style="font-size:14px;">{{ last.created_at|date:"Y/m/d H:i" }}</div>
+              </div>
+              <div>
+                <div class="mono dim" style="font-size:11px;">嘗試次數</div>
+                <div class="mono" style="font-size:14px;">{{ history_count }} 次</div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action button -->
+  <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap;">
+    <a class="btn btn-primary btn-lg" id="btn-start"
+       href="{% url 'quiz:start_quiz' chapter.id %}?count=15&sr=1">
+      ▸ 開始作答　·　15 題　·　間隔學習
+    </a>
+    <a class="btn btn-lg" href="{% url 'quiz:index' %}">← 回到首頁</a>
+  </div>
+
+  <!-- Topics -->
+  <div class="section-head">
+    <h3 class="section-title">topics / 章節主題</h3>
+  </div>
+
+  <div class="chapter-grid">
+    {% for topic in topics %}
+    <div class="chapter-row no-click">
+      <span class="chapter-num">{{ forloop.counter|stringformat:"02d" }}</span>
+      <div>
+        <div class="chapter-name">{{ topic.0 }}</div>
+        <div class="chapter-desc">{{ topic.1 }}</div>
+      </div>
+      <span></span>
+      <span></span>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  var count = 15;
+  var sr = true;
+  var totalBank = {{ chapter.question_count }};
+
+  function setCount(n) {
+    count = n;
+    // update seg buttons
+    document.querySelectorAll('#seg-count button').forEach(function (btn) {
+      btn.classList.toggle('active', parseInt(btn.dataset.count, 10) === n);
+    });
+    // update time hint
+    var mins = Math.max(3, Math.ceil(n * 1));
+    document.getElementById('time-hint').textContent = '約 ' + mins + ' 分鐘';
+    updateStartLink();
+  }
+
+  window.setCount = setCount;
+
+  window.toggleSr = function () {
+    sr = !sr;
+    var el = document.getElementById('toggle-sr');
+    el.classList.toggle('on', sr);
+    el.setAttribute('aria-checked', String(sr));
+    document.getElementById('sr-label').textContent = sr ? '已啟用' : '關閉';
+    updateStartLink();
+  };
+
+  function updateStartLink() {
+    var link = document.getElementById('btn-start');
+    var base = '{% url "quiz:start_quiz" chapter.id %}';
+    link.href = base + '?count=' + count + '&sr=' + (sr ? '1' : '0');
+    var label = '▸ 開始作答　·　' + count + ' 題';
+    if (sr) label += '　·　間隔學習';
+    link.textContent = label;
+  }
+
+  // init: hide "全部" button if totalBank is already 15
+  var allBtn = document.getElementById('btn-all');
+  if (totalBank === 15) {
+    allBtn.style.display = 'none';
+  }
+
+  // default count = min(15, totalBank)
+  setCount(Math.min(15, totalBank));
+}());
+</script>
+{% endblock %}

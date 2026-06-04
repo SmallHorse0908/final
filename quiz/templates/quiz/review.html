@@ -1,0 +1,67 @@
+{% extends "quiz/base.html" %}
+{% block title %}錯題複習{% endblock %}
+{% block nav_review %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div style="padding:12px 0 32px;">
+    <div class="hero-prompt">$ grep -r "wrong" ./history/</div>
+    <h1 class="hero-title" style="font-size:38px;">錯題複習</h1>
+    <p class="hero-sub">
+      系統自動從歷史紀錄中蒐集你答錯的題目。再次作答答對後會自動從清單移除。
+    </p>
+  </div>
+
+  {% if not user_name %}
+  <div class="empty">
+    請先<a href="{% url 'quiz:set_name' %}?next={% url 'quiz:review' %}" style="color:var(--cyan);">設定名稱</a>以查看錯題清單。
+  </div>
+
+  {% elif wrong_list %}
+  <div class="notice" style="margin-bottom:24px;">
+    // 共 {{ wrong_list|length }} 題待複習
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:16px;">
+    {% for d in wrong_list %}
+    <div class="qcard" style="padding:24px 28px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span class="mono dim" style="font-size:12px;">
+          Q{{ forloop.counter|stringformat:"02d" }}
+        </span>
+        <span class="tag tag-red">需複習</span>
+      </div>
+      <div style="font-size:16px;margin-bottom:14px;line-height:1.6;">{{ d.stem }}</div>
+      {% if d.block %}
+      <code style="display:block;margin-bottom:14px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-family:var(--font-mono);font-size:13px;color:var(--cyan);">{{ d.block }}</code>
+      {% endif %}
+      <div class="mono" style="font-size:13px;color:var(--text-muted);line-height:1.9;">
+        <div>你選的：<span class="red">{{ d.user_choice_text|default:"未作答" }}</span></div>
+        <div>正解：<span class="green">{{ d.correct_choice_text }}</span></div>
+      </div>
+      {% if d.hint %}
+      <div style="margin-top:14px;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--text-muted);">
+        <span class="dim mono" style="font-size:11px;"># 解析　</span>{{ d.hint }}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <div style="margin-top:24px;">
+    <a class="btn btn-primary"
+       href="{% if default_chapter %}{% url 'quiz:start_quiz' default_chapter.id %}?ids={{ wrong_ids }}&review=1{% else %}{% url 'quiz:index' %}{% endif %}">
+      重新練習這些題目 →
+    </a>
+  </div>
+
+  {% else %}
+  <div class="empty">
+    ✓ 目前沒有錯題！<br/><br/>
+    <a class="btn" href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">開始一次測驗 →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

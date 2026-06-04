@@ -1,0 +1,71 @@
+{% extends "quiz/base.html" %}
+{% block title %}排行榜{% endblock %}
+{% block nav_leaderboard %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div style="padding:12px 0 32px;">
+    <div class="hero-prompt">$ rank --top 10 --order score,time</div>
+    <h1 class="hero-title" style="font-size:38px;">排行榜</h1>
+    <p class="hero-sub">
+      第 6 章「堆疊與佇列」｜依分數降序，分數相同時用時較短者優先。
+    </p>
+  </div>
+
+  {% if records %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th style="width:60px;">排名</th>
+        <th>玩家</th>
+        <th>分數</th>
+        <th>用時</th>
+        <th>日期</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr {% if r.is_me %}style="background:rgba(103,232,249,0.04);"{% endif %}>
+        <td>
+          {% if r.rank == 1 %}
+            <span class="rank-medal rank-1">1</span>
+          {% elif r.rank == 2 %}
+            <span class="rank-medal rank-2">2</span>
+          {% elif r.rank == 3 %}
+            <span class="rank-medal rank-3">3</span>
+          {% else %}
+            <span class="dim">#{{ r.rank }}</span>
+          {% endif %}
+        </td>
+        <td {% if r.is_me %}style="color:var(--cyan);font-weight:600;"{% endif %}>
+          {{ r.user_name }}
+          {% if r.is_me %}<span class="tag tag-amber" style="margin-left:8px;">YOU</span>{% endif %}
+        </td>
+        <td>
+          <span style="font-weight:600;">{{ r.score }}</span>
+          <span class="dim"> / 100</span>
+        </td>
+        <td>{{ r.duration_fmt }}</td>
+        <td class="dim">{{ r.created_at|date:"Y/m/d" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty">
+    尚無排行榜資料。<br/>
+    <span style="display:inline-block;margin-top:14px;">
+      <a class="btn btn-primary" href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">成為第一名 →</a>
+    </span>
+  </div>
+  {% endif %}
+
+  {% if not user_name %}
+  <div style="margin-top:24px;text-align:center;">
+    <a class="btn btn-primary" href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">挑戰排行榜 →</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

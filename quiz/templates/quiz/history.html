@@ -1,0 +1,92 @@
+{% extends "quiz/base.html" %}
+{% block title %}歷史成績{% endblock %}
+{% block nav_history %}active{% endblock %}
+
+{% block content %}
+<div class="container">
+
+  <div style="padding:12px 0 32px;">
+    <div class="hero-prompt">$ cat ./history/*.log</div>
+    <h1 class="hero-title" style="font-size:38px;">歷史成績</h1>
+    <p class="hero-sub">
+      {% if user_name %}
+        {{ user_name }} 的作答紀錄，每次結果永久保存於資料庫。
+      {% else %}
+        請先<a href="{% url 'quiz:set_name' %}?next={% url 'quiz:history' %}" style="color:var(--cyan);">設定名稱</a>以查看個人紀錄。
+      {% endif %}
+    </p>
+  </div>
+
+  {% if stats %}
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-label">嘗試次數</div>
+      <div class="stat-value">{{ stats.attempts }}<span class="unit">次</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">平均分數</div>
+      <div class="stat-value">{{ stats.avg_score }}<span class="unit">分</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">最佳分數</div>
+      <div class="stat-value">{{ stats.best_score }}<span class="unit">分</span></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">總計用時</div>
+      <div class="stat-value" style="font-size:22px;">{{ stats.total_time_fmt }}</div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="section-head">
+    <h3 class="section-title">attempts / 作答紀錄</h3>
+  </div>
+
+  {% if records %}
+  <table class="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>章節</th>
+        <th>分數</th>
+        <th>答對 / 總題</th>
+        <th>用時</th>
+        <th>日期</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in records %}
+      <tr>
+        <td class="dim">{{ forloop.counter|stringformat:"03d" }}</td>
+        <td>ch.{{ r.chapter.number|stringformat:"02d" }} {{ r.chapter.title }}</td>
+        <td>
+          <span style="font-weight:600;{% if r.score >= 90 %}color:var(--green);{% elif r.score < 60 %}color:var(--red);{% endif %}">
+            {{ r.score }}
+          </span>
+          <span class="dim"> / 100</span>
+        </td>
+        <td>{{ r.correct_count }} / {{ r.total }}</td>
+        <td>{{ r.duration_fmt }}</td>
+        <td class="dim">{{ r.created_at|date:"Y/m/d H:i" }}</td>
+        <td style="display:flex;gap:6px;">
+          <a class="btn btn-sm btn-ghost" href="{% url 'quiz:record_detail' r.id %}">查看</a>
+          <a class="btn btn-sm btn-ghost" href="{% url 'quiz:start_quiz' r.chapter.id %}">再答</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% elif user_name %}
+  <div class="empty">
+    目前尚無歷史紀錄。<br/>
+    <span style="display:inline-block;margin-top:14px;">
+      <a class="btn" href="{% if default_chapter %}{% url 'quiz:chapter_detail' default_chapter.id %}{% else %}{% url 'quiz:index' %}{% endif %}">開始第一次測驗 →</a>
+    </span>
+  </div>
+  {% else %}
+  <div class="empty">請先設定名稱以查看個人成績。</div>
+  {% endif %}
+
+</div>
+{% endblock %}
